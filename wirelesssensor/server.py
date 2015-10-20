@@ -22,7 +22,7 @@ def standalone():
     application = tornado.web.Application(URLS, **app_settings)
 
     http_server = httpserver.HTTPServer(application)
-    http_server.listen(8888)
+    http_server.listen(80)
 
     io_loop.start()
 
