@@ -26,7 +26,17 @@ class Reading(BaseModel):
     reading = Column(Float(), nullable=False)
     checksum_sent = Column(Integer(), nullable=False)
     checksum_calc = Column(Integer(), nullable=False)
+    
+class Setpoint(BaseModel):
+    __tablename__ = "setpoints"
 
+    id = Column(Integer(), primary_key=True, nullable=False)
+    created_at = Column(DateTime(),
+                        nullable=False,
+                        default=datetime.datetime.utcnow,
+                        index=True)
+    zone_id = Column(Integer(), nullable=False)
+    temperature = Column(Float(), nullable=False)
 
 BaseModel.metadata.create_all()
 

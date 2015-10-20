@@ -18,7 +18,7 @@ $(window).load(function(){
   // ---------------------------------------------------------------------------
   
   function getData(success) {
-    jQuery.getJSON("/readings", null, function(data) {
+    jQuery.getJSON("/historicalreadings", null, function(data) {
       log("Downloaded " + data["readings"].length + " readings");
       window.sensors["data"] = data;
       var chartData = new google.visualization.DataTable();

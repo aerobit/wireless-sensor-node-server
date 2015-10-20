@@ -31,3 +31,6 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
     log.info("Starting up")
     standalone()
+
+if __name__ == "__main__":
+    main()
