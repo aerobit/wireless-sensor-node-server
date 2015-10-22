@@ -60,6 +60,12 @@ class TemperaturesHandler(tornado.web.RequestHandler):
         for node_id in [node_id[0] for node_id in node_ids]:
             reading = sess.query(Reading).filter(Reading.node_id == node_id).order_by(desc(Reading.created_at)).first()
             setpoint = sess.query(Setpoint).filter(Setpoint.zone_id == node_id).order_by(desc(Setpoint.created_at)).first()
+            if setpoint is None:
+                setpoint = Setpoint()
+                setpoint.zone_id = node_id
+                setpoint.temperature = 20
+                sess.add(setpoint)
+                sess.commit()
             try:
                 name = sess.query(Name).filter(Name.zone_id == node_id).one().name
             except NoResultFound:
