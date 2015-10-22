@@ -1,0 +1,79 @@
+html {
+      height: 100%;
+}
+body {
+  background: #eeeded;
+  font-family: 'Roboto', sans-serif;
+}
+
+.card {
+  border-radius: 10px;
+  height: 300px;
+  padding: 1rem;
+  position: relative;
+  width: 90%;
+  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+  color: white;
+  text-align:center;
+  margin: 1rem auto;
+  transition: all 0.2s ease-in-out;
+}
+
+.card-contents {
+  width: 100%;
+  height: 100%;
+  transform:rotate(180deg);
+}
+
+.middle {
+  top: 50%;
+  transform: translateY(-50%) rotate(180deg);
+  position: relative;
+  text-align: center;
+}
+
+.temp {
+  font-size: 120pt;
+  text-shadow: 0 2px 10px rgba(0,0,0,.16);
+  display: inline-block;
+}
+.temp:after {
+  content: "\00b0";
+  font-size: 64pt;
+  top: 0;
+  position: absolute;
+}
+
+.temp-adjuster {
+  line-height: 200px;
+  transition: all .2s ease-in-out;
+}
+
+.temp-adjuster :active {
+  transform: scale(1.3);
+}
+
+.temp-adjuster img {
+  width: 72px;
+  height: 72px;
+  vertical-align: middle;
+}
+
+
+.room {
+  transform: rotate(180deg);
+  font-size: 24pt;
+}
+
+.left {
+  float: left;
+}
+.right {
+  float: right;
+}
+
+@media only screen and (max-device-width: 480px) {
+  .card {
+    zoom: 1.8;
+  }
+}
