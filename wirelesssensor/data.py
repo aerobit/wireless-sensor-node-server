@@ -38,5 +38,11 @@ class Setpoint(BaseModel):
     zone_id = Column(Integer(), nullable=False)
     temperature = Column(Float(), nullable=False)
 
+class Name(BaseModel):
+    __tablename__ = "names"
+    id = Column(Integer(), primary_key=True, nullable=False)
+    zone_id = Column(Integer(), nullable=False)
+    name = Column(String(), nullable=False)
+
 BaseModel.metadata.create_all()
 

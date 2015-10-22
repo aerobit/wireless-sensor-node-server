@@ -23,4 +23,4 @@ ensure_dir_exists(DATA_DIR)
 
 DATABASE = 'sqlite:///%s/db.sqlite' % DATA_DIR
 DATABASE_DEBUG = False
-TORNADO_DEBUG = False
+TORNADO_DEBUG = True

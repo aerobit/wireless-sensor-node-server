@@ -5,8 +5,9 @@ import datetime
 import tornado.web
 import settings
 import tornado
-from data import Session, Reading, Setpoint
+from data import Session, Reading, Setpoint, Name
 from sqlalchemy import desc
+from sqlalchemy.orm.exc import NoResultFound
 
 
 class HistoricalReadingsHandler(tornado.web.RequestHandler):
@@ -49,38 +50,27 @@ class HistoricalReadingsHandler(tornado.web.RequestHandler):
 
         self.finish("]}")
 
-class ReadingsHandler(tornado.web.RequestHandler):
+class TemperaturesHandler(tornado.web.RequestHandler):
     def get(self):
         sess = Session()
         self.set_header("Content-Type", "application/json")
         node_ids = sess.query(Reading.node_id).distinct().all()
         i = 0
-        self.write('{"num_nodes":%s,"readings":[' % len(node_ids))
-        for node_id in node_ids:
-            latest = sess.query(Reading).filter(Reading.node_id == node_id[0]).order_by(desc(Reading.created_at)).first()
+        self.write('{"readings":[')
+        for node_id in [node_id[0] for node_id in node_ids]:
+            reading = sess.query(Reading).filter(Reading.node_id == node_id).order_by(desc(Reading.created_at)).first()
+            setpoint = sess.query(Setpoint).filter(Setpoint.zone_id == node_id).order_by(desc(Setpoint.created_at)).first()
+            try:
+                name = sess.query(Name).filter(Name.zone_id == node_id).one().name
+            except NoResultFound:
+                name = node_id
             self.write(("" if i == 0 else ",") + 
-                json.dumps({'id':latest.node_id, 'temperature':latest.reading}))
+                json.dumps({'id':node_id, 'name':name, 'desired':setpoint.temperature, 'actual':reading.reading}))
             i += 1
         self.flush()
         self.finish("]}")
 
 class SetpointsHandler(tornado.web.RequestHandler):
-    def get(self):
-        sess = Session()
-        self.set_header("Content-Type", "application/json")
-        zone_ids = sess.query(Setpoint.zone_id).distinct().all()
-        i = 0
-        self.write('{"num_zones":%s,"setpoints":[' % len(zone_ids))
-        for zone_id in zone_ids:
-            latest = sess.query(Setpoint).filter(Setpoint.zone_id == zone_id[0]).order_by(desc(Setpoint.created_at)).first()
-            self.write(("" if i == 0 else ",") + 
-                json.dumps({'id':latest.zone_id, 'temperature':latest.temperature}))
-            i += 1
-        self.flush()
-        self.finish("]}")
-        for s in sess.query(Setpoint).filter(Setpoint.zone_id == zone_id[0]).order_by(desc(Setpoint.created_at)).all():
-            print(str(s.created_at) + " " + str(s.temperature))
-
     def post(self):
         sess = Session()
         zone_id = self.get_argument('id')
@@ -90,14 +80,25 @@ class SetpointsHandler(tornado.web.RequestHandler):
         setpoint.temperature = float(temperature)
         sess.add(setpoint)
         sess.commit()
-        self.get()
 
-
-
-
+class NameHandler(tornado.web.RequestHandler):
+    def post(self):
+        sess = Session()
+        zone_id = self.get_argument('id')
+        new_name = self.get_argument('name')
+        try:
+            name = sess.query(Name).filter(Name.zone_id == zone_id).one()
+        except NoResultFound:
+            name = Name()
+            name.zone_id = int(zone_id)
+        name.name = new_name
+        sess.add(name)
+        sess.commit()
 
 URLS = [
     (r'^/historicalreadings/?$', HistoricalReadingsHandler),
     (r'^/setpoints/?$', SetpointsHandler),
-    ("^/(.*)$", tornado.web.StaticFileHandler, {"path": settings.STATIC_DIR, "default_filename": "index.html"}),
+    (r'^/temperatures/?$', TemperaturesHandler),
+    (r'^/names/?$', NameHandler),
+    (r'^/(.*)$', tornado.web.StaticFileHandler, {"path": settings.STATIC_DIR, "default_filename": "index.html"}),
 ]
